@@ -22,7 +22,6 @@ import (
 	"log"
 	"mime"
 	"net/http"
-	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -113,17 +112,8 @@ func errorHandler(path string) func(http.ResponseWriter, *http.Request) {
 			log.Printf("format not specified. Using %v", format)
 		}
 
-		uri := r.Header.Get(OriginalURI)
-		if uri != "" {
-			u, err := url.Parse(uri)
-			if err != nil {
-				log.Printf("unexpected error parsing OriginalURI: %v. Using %v", err, uri)
-			} else {
-				if format == "application/json" {
-					w.Header().Set(AccessControlAllowOrigin, fmt.Sprintf("%v://%v", u.Scheme, u.Host))
-				}
-			}
-		}
+		w.Header().Set(AccessControlAllowOrigin, "*")
+		log.Printf("Set CORS allow origin * for service %v", r.Header.Get(ServiceName))
 
 		cext, err := mime.ExtensionsByType(format)
 		if err != nil {
